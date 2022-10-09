@@ -1,8 +1,19 @@
 package org.bot;
 
+import java.util.Scanner;
+
 public class Logic {
     public String getHello() {
         return Report.START_REPORT;
+    }
+
+    public void run() {
+        Scanner input = new Scanner(System.in);
+        while (true) {
+            String command = input.nextLine();
+            String message = getReport(command);
+            System.out.println(message);
+        }
     }
     public String getReport(String report) {
         Week week = new Week();
