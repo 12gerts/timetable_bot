@@ -37,7 +37,7 @@ public class Group {
         HttpRequest request = new HttpRequest();
         String response = request.getInnerNumber(group);
 
-        if (response.length() > 6) {
+        if (response != null && response.length() > 6) {
             ParserJson responseJson = new Gson().fromJson(response, ParserJson.class);
             if (responseJson.suggestions.length != 0) {
                 numberOfGroup = String.valueOf(responseJson.suggestions[0].data);
@@ -53,8 +53,13 @@ public class Group {
      */
     public String changeGroup() {
         numberOfGroup = null;
-        if (getNumberOfGroup() == null) {
-            return Report.AUTHORIZATION_ERROR;
+        getNumberOfGroup();
+        return checkGroupChange();
+    }
+
+    public String checkGroupChange() {
+        if (numberOfGroup == null) {
+            return Report.REQUEST_ERROR;
         } else {
             return Report.GROUP_CHANGE;
         }

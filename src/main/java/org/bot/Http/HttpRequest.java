@@ -1,5 +1,6 @@
 package org.bot.Http;
 
+import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -61,8 +62,8 @@ public class HttpRequest {
             } else {
                 System.out.println("fail");
             }
-        } catch (Throwable cause) {
-            cause.printStackTrace();
+        } catch (IOException cause) {
+            return null;
         } finally {
             if (connection != null) {
                 connection.disconnect();

@@ -26,6 +26,9 @@ public class Schedule {
     public String getSchedule(Date date, String innerNumber) {
         HttpRequest request = new HttpRequest();
         String calendar = request.getSchedule(innerNumber);
+        if (calendar == null) {
+            return null;
+        }
         return parseCalendar(calendar, date);
     }
 
@@ -36,7 +39,7 @@ public class Schedule {
      * @param date     дата
      * @return расписание за заданный
      */
-    private String parseCalendar(String calendar, Date date) {
+    public String parseCalendar(String calendar, Date date) {
         DateFormat dfEqual = new SimpleDateFormat("dd/MM/yyyy");
         DateFormat dfPrint = new SimpleDateFormat("HH:mm");
         StringBuilder sb = new StringBuilder();
