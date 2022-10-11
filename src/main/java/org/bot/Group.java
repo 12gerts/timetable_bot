@@ -13,7 +13,7 @@ public class Group {
     private String numberOfGroup = null;
 
     /**
-     * Меторд, обрабатывающий номер группы и возвращающий внутренний номер
+     * Метод, запрашивающий номер группы и возвращающий внутренний номер
      *
      * @return Внутренний номер группы/null
      */
@@ -22,15 +22,25 @@ public class Group {
             System.out.println(Report.AUTHORIZATION_REPORT);
             Scanner input = new Scanner(System.in);
             String command = input.nextLine();
+            numberOfGroup = convertAndUpdateNumberOfGroup(command);
+        }
+        return numberOfGroup;
+    }
 
-            HttpRequest request = new HttpRequest();
-            String response = request.getInnerNumber(command);
+    /**
+     * Метод, обрабатывающий номер группы и возвращающий внутренний номер
+     *
+     * @param group номер группы
+     * @return внутренний номер группы
+     */
+    public String convertAndUpdateNumberOfGroup(String group) {
+        HttpRequest request = new HttpRequest();
+        String response = request.getInnerNumber(group);
 
-            if (response.length() > 6) {
-                ParserJson responseJson = new Gson().fromJson(response, ParserJson.class);
-                if (responseJson.suggestions.length != 0) {
-                    numberOfGroup = String.valueOf(responseJson.suggestions[0].data);
-                }
+        if (response.length() > 6) {
+            ParserJson responseJson = new Gson().fromJson(response, ParserJson.class);
+            if (responseJson.suggestions.length != 0) {
+                numberOfGroup = String.valueOf(responseJson.suggestions[0].data);
             }
         }
         return numberOfGroup;
