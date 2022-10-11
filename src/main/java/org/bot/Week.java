@@ -8,13 +8,14 @@ import java.util.Date;
  * Класс, обрабатывающий дни недели для вывода расписания
  */
 public class Week {
+    private final Date today = new Date();
     /**
      * Метод, переводящий номер дня недели в его название
      *
      * @param numberOfDay номер дня недели
      * @return название дня недели
      */
-    private String nameOfDay(int numberOfDay) {
+    public String nameOfDay(int numberOfDay) {
         return switch (numberOfDay) {
             case 1 -> "Понедельник";
             case 2 -> "Вторник";
@@ -28,21 +29,12 @@ public class Week {
     }
 
     /**
-     * Метод, возвращающий сегодняшнюю дату
-     *
-     * @return сегодняшняя дата
-     */
-    private Date getToday() {
-        return new Date();
-    }
-
-    /**
      * Метод, возвращающий следующий день от заданного
      *
      * @param date заданный день
      * @return следующий день
      */
-    private Date getNextDay(Date date) {
+    public Date getNextDay(Date date) {
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(date);
         calendar.add(Calendar.DATE, +1);
@@ -68,7 +60,7 @@ public class Week {
      * @param date заданная дата
      * @return порядковый номер дня недели
      */
-    private int getNumberOfWeekDay(Date date) {
+    public int getNumberOfWeekDay(Date date) {
         SimpleDateFormat formatDate = new SimpleDateFormat("u");
         return Integer.parseInt(formatDate.format(date));
     }
@@ -86,9 +78,8 @@ public class Week {
         }
 
         Schedule schedule = new Schedule();
-        Date todayDate = getToday();
-        int numberOfDay = getNumberOfWeekDay(todayDate);
-        String todaySchedule = schedule.getSchedule(todayDate, numberOfGroup);
+        int numberOfDay = getNumberOfWeekDay(today);
+        String todaySchedule = schedule.getSchedule(today, numberOfGroup);
         return nameOfDay(numberOfDay) + "\n" + checkMissingSchedule(todaySchedule);
     }
 
@@ -105,8 +96,7 @@ public class Week {
         }
 
         Schedule schedule = new Schedule();
-        Date todayDate = getToday();
-        Date tomorrowDate = getNextDay(todayDate);
+        Date tomorrowDate = getNextDay(today);
         int numberOfDay = getNumberOfWeekDay(tomorrowDate);
         String tomorrowSchedule = schedule.getSchedule(tomorrowDate, numberOfGroup);
         return nameOfDay(numberOfDay) + "\n" + checkMissingSchedule(tomorrowSchedule);
@@ -127,7 +117,7 @@ public class Week {
 
         Schedule schedule = new Schedule();
         StringBuilder fullSchedule = new StringBuilder();
-        Date day = getToday();
+        Date day = today;
         int numberOfWeekDay = getNumberOfWeekDay(day);
 
         for (int i = 0; i < amountOfDays; i++) {
