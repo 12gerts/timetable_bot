@@ -74,7 +74,7 @@ public class Week {
     public String today(Group group) {
         String numberOfGroup = group.getNumberOfGroup();
         if (numberOfGroup == null) {
-            return Report.REQUEST_ERROR;
+            return Report.AUTHORIZATION_REPORT;
         }
 
         Schedule schedule = new Schedule();
@@ -92,7 +92,7 @@ public class Week {
     public String tomorrow(Group group) {
         String numberOfGroup = group.getNumberOfGroup();
         if (numberOfGroup == null) {
-            return Report.REQUEST_ERROR;
+            return Report.AUTHORIZATION_REPORT;
         }
 
         Schedule schedule = new Schedule();
@@ -112,8 +112,9 @@ public class Week {
     public String week(Group group, int amountOfDays) {
         String numberOfGroup = group.getNumberOfGroup();
         if (numberOfGroup == null) {
-            return Report.REQUEST_ERROR;
+            return Report.AUTHORIZATION_REPORT;
         }
+
 
         Schedule schedule = new Schedule();
         StringBuilder fullSchedule = new StringBuilder();

@@ -4,8 +4,6 @@ import com.google.gson.Gson;
 import org.bot.Http.HttpRequest;
 import org.bot.Http.ParserJson;
 
-import java.util.Scanner;
-
 public class Group {
     /**
      * Поле, хранящее номер внутренний номер учебной группы
@@ -18,12 +16,6 @@ public class Group {
      * @return Внутренний номер группы/null
      */
     public String getNumberOfGroup() {
-        if (numberOfGroup == null) {
-            System.out.println(Report.AUTHORIZATION_REPORT);
-            Scanner input = new Scanner(System.in);
-            String command = input.nextLine();
-            numberOfGroup = convertAndUpdateNumberOfGroup(command);
-        }
         return numberOfGroup;
     }
 
@@ -41,9 +33,11 @@ public class Group {
             ParserJson responseJson = new Gson().fromJson(response, ParserJson.class);
             if (responseJson.suggestions.length != 0) {
                 numberOfGroup = String.valueOf(responseJson.suggestions[0].data);
+                return numberOfGroup;
             }
         }
-        return numberOfGroup;
+        numberOfGroup = null;
+        return null;
     }
 
     /**
@@ -51,11 +45,6 @@ public class Group {
      *
      * @return Сообщение об ошибке/об успешном исходе
      */
-    public String changeGroup() {
-        numberOfGroup = null;
-        getNumberOfGroup();
-        return checkGroupChange();
-    }
 
     public String checkGroupChange() {
         if (numberOfGroup == null) {
@@ -65,4 +54,3 @@ public class Group {
         }
     }
 }
-
