@@ -40,7 +40,7 @@ class LogicTest {
         String expected = Report.START_REPORT;
         assertEquals(expected, actual);
     }
-
+    /*
     @Test
     void getReportHelp() {
         String actual = logic.getReport("/help", group);
@@ -67,7 +67,7 @@ class LogicTest {
         String actual = group.convertAndUpdateNumberOfGroup("мен-000000");
         assertNull(actual);
     }
-
+    */
     @Test
     void getTomorrowSchedule() throws IOException, ParseException {
         Date nextDay = week.getNextDay(fixDate);
@@ -86,13 +86,14 @@ class LogicTest {
         assertEquals(expected, actual);
     }
 
+    /*
     @Test
     void checkGroupChange() {
         String actual = group.checkGroupChange();
         String expected = Report.REQUEST_ERROR;
         assertEquals(expected, actual);
     }
-
+    */
     @Test
     void getInnerDataApi() {
         String actual = request.getInnerNumber("мен-210204");

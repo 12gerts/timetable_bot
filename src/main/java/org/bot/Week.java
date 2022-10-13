@@ -1,5 +1,7 @@
 package org.bot;
 
+import org.bot.Telegram.Telegram;
+
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
@@ -71,8 +73,8 @@ public class Week {
      * @param group экземпляр класса Group, хранящий текущую учебную группу
      * @return расписание на сегодняшний день
      */
-    public String today(Group group) {
-        String numberOfGroup = group.getNumberOfGroup();
+    public String today(String group) {
+        String numberOfGroup = group;
         if (numberOfGroup == null) {
             return Report.AUTHORIZATION_REPORT;
         }
@@ -89,8 +91,8 @@ public class Week {
      * @param group экземпляр класса Group, хранящий текущую учебную группу
      * @return расписание на завтрашний день
      */
-    public String tomorrow(Group group) {
-        String numberOfGroup = group.getNumberOfGroup();
+    public String tomorrow(String group) {
+        String numberOfGroup = group;
         if (numberOfGroup == null) {
             return Report.AUTHORIZATION_REPORT;
         }
@@ -109,8 +111,8 @@ public class Week {
      * @param amountOfDays количество дней, на которое необходимо расписание
      * @return расписание на [amountOfDays] дней
      */
-    public String week(Group group, int amountOfDays) {
-        String numberOfGroup = group.getNumberOfGroup();
+    public String week(String group, int amountOfDays) {
+        String numberOfGroup = group;
         if (numberOfGroup == null) {
             return Report.AUTHORIZATION_REPORT;
         }

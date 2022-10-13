@@ -1,5 +1,6 @@
 package org.bot;
 
+import org.bot.Telegram.Telegram;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
@@ -12,7 +13,8 @@ public class Logic {
     private String lastMessage = null;
     private final String[] massStringA = {"/today", "/tomorrow", "/week"};
     Group group = new Group();
-    public String parseMessage(String textMsg) {
+
+    public String parseMessage(String textMsg, String chatId) {
 
         String response;
         //Сравниваем текст пользователя с нашими командами, на основе этого формируем ответ
@@ -23,21 +25,22 @@ public class Logic {
             return Report.AUTHORIZATION_REPORT;
         } else if (Objects.equals(lastMessage, "/change")) {
             lastMessage = textMsg;
-            group.convertAndUpdateNumberOfGroup(textMsg);
-            return group.checkGroupChange();
-        } else if (Arrays.asList(massStringA).contains(lastMessage) && group.getNumberOfGroup() == null) {
-            group.convertAndUpdateNumberOfGroup(textMsg);
-            if (group.getNumberOfGroup() == null) {
+            group.convertAndUpdateNumberOfGroup(textMsg, chatId);
+            return group.checkGroupChange(chatId);
+        } else if (Arrays.asList(massStringA).contains(lastMessage) && Telegram.map.get(chatId) == null) {
+            group.convertAndUpdateNumberOfGroup(textMsg, chatId);
+            if (Telegram.map.get(chatId) == null) {
                 lastMessage = textMsg;
                 return Report.REQUEST_ERROR;
             }
-            response = getReport(lastMessage, group);
+            response = getReport(lastMessage, Telegram.map.get(chatId));
         } else {
-            response = getReport(textMsg, group);
+            response = getReport(textMsg, Telegram.map.get(chatId));
         }
         lastMessage = textMsg;
         return response;
     }
+
     /**
      * Метод, вызывающий приветственное сообщение
      *
@@ -54,7 +57,7 @@ public class Logic {
      * @param group  экземпляр класса Group, хранящий текущую учебную группу
      * @return ответ пользователю: расписание или предупреждающее сообщение
      */
-    public String getReport(String report, Group group) {
+    public String getReport(String report, String group) {
         Week week = new Week();
         return switch (report) {
             case "/today" -> week.today(group);

@@ -1,6 +1,7 @@
 package org.bot.Telegram;
 
 
+import org.bot.Group;
 import org.bot.Logic;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
@@ -11,9 +12,11 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.HashMap;
 
 public class Telegram extends TelegramLongPollingBot {
     Logic logic;
+    public static HashMap<String, String> map = new HashMap<>();
 
     public String readFile(String fileName) throws IOException {
         StringBuilder sb = new StringBuilder();
@@ -62,8 +65,11 @@ public class Telegram extends TelegramLongPollingBot {
                 Message inMess = update.getMessage();
                 //Достаем из inMess id чата пользователя
                 String chatId = inMess.getChatId().toString();
+                if(!map.containsKey(chatId)){
+                    map.put(chatId, null);
+                }
                 //Получаем текст сообщения пользователя, отправляем в написанный нами обработчик
-                String response = logic.parseMessage(inMess.getText());
+                String response = logic.parseMessage(inMess.getText(), chatId);
                 //Создаем объект класса SendMessage - наш будущий ответ пользователю
                 SendMessage outMess = new SendMessage();
 
