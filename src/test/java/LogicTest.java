@@ -96,7 +96,7 @@ class LogicTest {
     }
 
     @Test
-    public void itShouldThrowNullPointerExceptionWhenBlahBlah() {
+    public void getIllegalStateException() {
         assertThrows(IllegalStateException.class, () -> week.nameOfDay(8));
     }
 
