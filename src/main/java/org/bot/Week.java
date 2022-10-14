@@ -1,7 +1,5 @@
 package org.bot;
 
-import org.bot.Telegram.Telegram;
-
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
@@ -10,7 +8,12 @@ import java.util.Date;
  * Класс, обрабатывающий дни недели для вывода расписания
  */
 public class Week {
-    private final Date today = new Date();
+    public Date today = new Date();
+
+    Schedule schedule = new Schedule();
+
+
+
     /**
      * Метод, переводящий номер дня недели в его название
      *
@@ -29,6 +32,7 @@ public class Week {
             default -> throw new IllegalStateException("Unexpected value: " + numberOfDay);
         };
     }
+
 
     /**
      * Метод, возвращающий следующий день от заданного
@@ -67,64 +71,33 @@ public class Week {
         return Integer.parseInt(formatDate.format(date));
     }
 
-    /**
-     * Метод, возвращающий расписание на сегодня
-     *
-     * @param group экземпляр класса Group, хранящий текущую учебную группу
-     * @return расписание на сегодняшний день
-     */
-    public String today(String group) {
-        String numberOfGroup = group;
-        if (numberOfGroup == null) {
-            return Report.AUTHORIZATION_REPORT;
-        }
 
-        Schedule schedule = new Schedule();
+    public String today(String calendar) {
         int numberOfDay = getNumberOfWeekDay(today);
-        String todaySchedule = schedule.getSchedule(today, numberOfGroup);
+        String todaySchedule = schedule.parseCalendar(calendar, today);
         return nameOfDay(numberOfDay) + "\n" + checkMissingSchedule(todaySchedule);
     }
 
-    /**
-     * Метод, возвращающий расписание на завтра
-     *
-     * @param group экземпляр класса Group, хранящий текущую учебную группу
-     * @return расписание на завтрашний день
-     */
-    public String tomorrow(String group) {
-        String numberOfGroup = group;
-        if (numberOfGroup == null) {
-            return Report.AUTHORIZATION_REPORT;
-        }
-
-        Schedule schedule = new Schedule();
+    public String tomorrow(String calendar) {
         Date tomorrowDate = getNextDay(today);
         int numberOfDay = getNumberOfWeekDay(tomorrowDate);
-        String tomorrowSchedule = schedule.getSchedule(tomorrowDate, numberOfGroup);
+        String tomorrowSchedule = schedule.parseCalendar(calendar, tomorrowDate);
         return nameOfDay(numberOfDay) + "\n" + checkMissingSchedule(tomorrowSchedule);
     }
 
     /**
      * Метод, возвращающий расписание на заданное количество дней (до 14)
      *
-     * @param group        экземпляр класса Group, хранящий текущую учебную группу
      * @param amountOfDays количество дней, на которое необходимо расписание
      * @return расписание на [amountOfDays] дней
      */
-    public String week(String group, int amountOfDays) {
-        String numberOfGroup = group;
-        if (numberOfGroup == null) {
-            return Report.AUTHORIZATION_REPORT;
-        }
-
-
-        Schedule schedule = new Schedule();
+    public String week(String calendar, int amountOfDays) {
         StringBuilder fullSchedule = new StringBuilder();
         Date day = today;
         int numberOfWeekDay = getNumberOfWeekDay(day);
 
         for (int i = 0; i < amountOfDays; i++) {
-            String answer = schedule.getSchedule(day, numberOfGroup);
+            String answer = schedule.parseCalendar(calendar, day);
             fullSchedule.append(nameOfDay(numberOfWeekDay)).append("\n");
             fullSchedule.append(checkMissingSchedule(answer)).append("\n");
             day = getNextDay(day);

@@ -5,7 +5,6 @@ import biweekly.component.VEvent;
 import biweekly.io.text.ICalReader;
 import biweekly.property.DateStart;
 import biweekly.property.Summary;
-import org.bot.Http.HttpRequest;
 
 import java.io.IOException;
 import java.text.DateFormat;
@@ -16,22 +15,6 @@ import java.util.Date;
  * Класс, формирующий расписание на заданный день
  */
 public class Schedule {
-    /**
-     * Метод, делающий запрос к API УрФУ по внутреннему номеру группы и возвращающий расписание на заданный день
-     *
-     * @param date        дата
-     * @param innerNumber внутренний номер группы
-     * @return расписание на заданный день
-     */
-    public String getSchedule(Date date, String innerNumber) {
-        HttpRequest request = new HttpRequest();
-        String calendar = request.getSchedule(innerNumber);
-        if (calendar == null) {
-            return null;
-        }
-        return parseCalendar(calendar, date);
-    }
-
     /**
      * Метод, парсящий ICalendar и возвращающий все занятия за заданный день
      *

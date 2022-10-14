@@ -1,43 +1,27 @@
 package org.bot.Telegram;
 
-
-import org.bot.Group;
 import org.bot.Logic;
+import org.bot.Reader;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
 import java.io.IOException;
 import java.util.HashMap;
 
 public class Telegram extends TelegramLongPollingBot {
-    Logic logic;
+    private final Logic logic = new Logic();
     public static HashMap<String, String> map = new HashMap<>();
+    Reader reader = new Reader();
 
-    public String readFile(String fileName) throws IOException {
-        StringBuilder sb = new StringBuilder();
-        try (BufferedReader reader = new BufferedReader(new FileReader(fileName))) {
-            String line;
-            while ((line = reader.readLine()) != null) {
-                sb.append(line);
-            }
-        }
-        return sb.toString();
-    }
-
-    public Telegram() {
-        logic = new Logic();
-    }
 
     @Override
     public String getBotUsername() {
-        String BOT_NAME = null;
+        String BOT_NAME;
         try {
-            BOT_NAME = readFile("src\\main\\java\\org\\bot\\Telegram\\name.txt");
+            BOT_NAME = reader.readFile("src/main/java/org/bot/Telegram/name.txt");
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -48,9 +32,9 @@ public class Telegram extends TelegramLongPollingBot {
     public String getBotToken() {
         //создаем две константы, присваиваем им значения токена и имя бота соответсвтенно
         //вместо звездочек подставляйте свои данные
-        String BOT_TOKEN = null;
+        String BOT_TOKEN;
         try {
-            BOT_TOKEN = readFile("src\\main\\java\\org\\bot\\Telegram\\token.txt");
+            BOT_TOKEN = reader.readFile("src/main/java/org/bot/Telegram/token.txt");
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

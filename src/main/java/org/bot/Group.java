@@ -5,20 +5,8 @@ import org.bot.Http.HttpRequest;
 import org.bot.Http.ParserJson;
 import org.bot.Telegram.Telegram;
 
-public class Group {
-    /**
-     * Поле, хранящее номер внутренний номер учебной группы
-     */
-    private String numberOfGroup = null;
 
-    /**
-     * Метод, запрашивающий номер группы и возвращающий внутренний номер
-     *
-     * @return Внутренний номер группы/null
-     */
-    public String getNumberOfGroup() {
-        return numberOfGroup;
-    }
+public class Group {
 
     /**
      * Метод, обрабатывающий номер группы и возвращающий внутренний номер

@@ -7,7 +7,7 @@ import java.io.InputStreamReader;
 import java.net.URL;
 
 /**
- * Класс, формирующий и отправлющий GET-запросы к API УрФУ
+ * Класс, формирующий и отправляющий GET-запросы к API УрФУ
  */
 public class HttpRequest {
     /**

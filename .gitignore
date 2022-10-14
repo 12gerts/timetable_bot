@@ -2,4 +2,5 @@
 *.iml
 *.class
 .DS_Store
-
+/src/main/java/org/bot/Telegram/name.txt
+/src/main/java/org/bot/Telegram/token.txt
