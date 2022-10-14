@@ -17,6 +17,11 @@ public class Telegram extends TelegramLongPollingBot {
     Reader reader = new Reader();
 
 
+    /**
+     * Метод, который читает имя бота из файла и присваивает его в BOT_NAME
+     *
+     * @return имя бота
+     */
     @Override
     public String getBotUsername() {
         String BOT_NAME;
@@ -28,10 +33,13 @@ public class Telegram extends TelegramLongPollingBot {
         return BOT_NAME;
     }
 
+    /**
+     * Метод, который читает токен бота из файла и присваивает его в BOT_TOKEN
+     *
+     * @return токен бота
+     */
     @Override
     public String getBotToken() {
-        //создаем две константы, присваиваем им значения токена и имя бота соответсвтенно
-        //вместо звездочек подставляйте свои данные
         String BOT_TOKEN;
         try {
             BOT_TOKEN = reader.readFile("src/main/java/org/bot/Telegram/token.txt");
@@ -41,27 +49,28 @@ public class Telegram extends TelegramLongPollingBot {
         return BOT_TOKEN;
     }
 
+    /**
+     * Метод, который принимает и отправляет сообщения в телеграмм
+     *
+     * @param update входящее обновление
+     */
     @Override
     public void onUpdateReceived(Update update) {
         try {
             if (update.hasMessage() && update.getMessage().hasText()) {
-                //Извлекаем из объекта сообщение пользователя
                 Message inMess = update.getMessage();
-                //Достаем из inMess id чата пользователя
                 String chatId = inMess.getChatId().toString();
-                if(!map.containsKey(chatId)){
+
+                if (!map.containsKey(chatId)) {
                     map.put(chatId, null);
                 }
-                //Получаем текст сообщения пользователя, отправляем в написанный нами обработчик
-                String response = logic.parseMessage(inMess.getText(), chatId);
-                //Создаем объект класса SendMessage - наш будущий ответ пользователю
-                SendMessage outMess = new SendMessage();
 
-                //Добавляем в наше сообщение id чата, а также наш ответ
+                String response = logic.parseMessage(inMess.getText(), chatId);
+
+                SendMessage outMess = new SendMessage();
                 outMess.setChatId(chatId);
                 outMess.setText(response);
 
-                //Отправка в чат
                 execute(outMess);
             }
         } catch (TelegramApiException e) {

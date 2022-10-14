@@ -18,9 +18,9 @@ public class Schedule {
     /**
      * Метод, парсящий ICalendar и возвращающий все занятия за заданный день
      *
-     * @param calendar ICalendar, содержающий все задания за 2 недели с текущей даты
+     * @param calendar ICalendar, содержащий все занятие за 2 недели с текущей даты
      * @param date     дата
-     * @return расписание за заданный
+     * @return расписание на заданную дату
      */
     public String parseCalendar(String calendar, Date date) {
         DateFormat dfEqual = new SimpleDateFormat("dd/MM/yyyy");

@@ -8,10 +8,12 @@ import java.util.Date;
  * Класс, обрабатывающий дни недели для вывода расписания
  */
 public class Week {
+    /**
+     * Поле, хранящее сегодняшнюю дату или то, что фиксированную дату, с которой мы начинаем отсчет
+     */
     public Date today = new Date();
 
     Schedule schedule = new Schedule();
-
 
 
     /**
@@ -71,13 +73,24 @@ public class Week {
         return Integer.parseInt(formatDate.format(date));
     }
 
-
+    /**
+     * Метод, возвращающий расписание на сегодняшнюю дату
+     *
+     * @param calendar ICalendar с расписанием на 2 недели
+     * @return расписание на сегодняшний день
+     */
     public String today(String calendar) {
         int numberOfDay = getNumberOfWeekDay(today);
         String todaySchedule = schedule.parseCalendar(calendar, today);
         return nameOfDay(numberOfDay) + "\n" + checkMissingSchedule(todaySchedule);
     }
 
+    /**
+     * Метод, возвращающий расписание на завтрашнюю дату
+     *
+     * @param calendar ICalendar с расписанием на 2 недели
+     * @return расписание на завтрашнюю день
+     */
     public String tomorrow(String calendar) {
         Date tomorrowDate = getNextDay(today);
         int numberOfDay = getNumberOfWeekDay(tomorrowDate);
@@ -88,6 +101,7 @@ public class Week {
     /**
      * Метод, возвращающий расписание на заданное количество дней (до 14)
      *
+     * @param calendar     ICalendar с расписанием на 2 недели
      * @param amountOfDays количество дней, на которое необходимо расписание
      * @return расписание на [amountOfDays] дней
      */
