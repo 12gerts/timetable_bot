@@ -1,11 +1,16 @@
-package org.bot.Http;
+package org.bot.Parser;
 
 /**
  * Класс, являющийся шаблоном для конвертации запроса в JSON
  */
-public class ParserJson {
+public class TemplateJson {
+    public Suggestion[] getSuggestions() {
+        return suggestions;
+    }
+
     /**
      * Поле, хранящее массив с JSON
      */
-    public Suggestion[] suggestions;
+    private Suggestion[] suggestions;
+
 }
