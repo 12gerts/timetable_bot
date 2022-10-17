@@ -14,7 +14,7 @@ import java.util.HashMap;
 public class Telegram extends TelegramLongPollingBot {
     private final Logic logic = new Logic();
     public static HashMap<String, String> map = new HashMap<>();
-    Reader reader = new Reader();
+    private final Reader reader = new Reader();
 
 
     /**
@@ -24,13 +24,13 @@ public class Telegram extends TelegramLongPollingBot {
      */
     @Override
     public String getBotUsername() {
-        String BOT_NAME;
+        String botName;
         try {
-            BOT_NAME = reader.readFile("src/main/java/org/bot/Telegram/name.txt");
+            botName = reader.readFile("src/main/resources/name.txt");
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-        return BOT_NAME;
+        return botName;
     }
 
     /**
@@ -40,13 +40,13 @@ public class Telegram extends TelegramLongPollingBot {
      */
     @Override
     public String getBotToken() {
-        String BOT_TOKEN;
+        String botToken;
         try {
-            BOT_TOKEN = reader.readFile("src/main/java/org/bot/Telegram/token.txt");
+            botToken = reader.readFile("src/main/resources/token.txt");
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-        return BOT_TOKEN;
+        return botToken;
     }
 
     /**
