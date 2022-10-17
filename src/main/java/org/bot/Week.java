@@ -1,5 +1,7 @@
 package org.bot;
 
+import org.bot.Parser.Schedule;
+
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
@@ -7,22 +9,23 @@ import java.util.Date;
 /**
  * Класс, обрабатывающий дни недели для вывода расписания
  */
-public class Week {
+public class Week implements IWeek{
     /**
      * Поле, хранящее сегодняшнюю дату или то, что фиксированную дату, с которой мы начинаем отсчет
      */
-    public Date today = new Date();
+    private final Date today;
 
-    Schedule schedule = new Schedule();
+    private final Schedule schedule = new Schedule();
 
-
+    public Week() {this.today = new Date();}
+    public Week(Date date) {this.today = date;}
     /**
      * Метод, переводящий номер дня недели в его название
      *
      * @param numberOfDay номер дня недели
      * @return название дня недели
      */
-    public String nameOfDay(int numberOfDay) {
+    private String nameOfDay(int numberOfDay) {
         return switch (numberOfDay) {
             case 1 -> "Понедельник";
             case 2 -> "Вторник";
@@ -42,7 +45,7 @@ public class Week {
      * @param date заданный день
      * @return следующий день
      */
-    public Date getNextDay(Date date) {
+    private Date getNextDay(Date date) {
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(date);
         calendar.add(Calendar.DATE, +1);
@@ -68,7 +71,7 @@ public class Week {
      * @param date заданная дата
      * @return порядковый номер дня недели
      */
-    public int getNumberOfWeekDay(Date date) {
+    private int getNumberOfWeekDay(Date date) {
         SimpleDateFormat formatDate = new SimpleDateFormat("u");
         return Integer.parseInt(formatDate.format(date));
     }
@@ -79,6 +82,7 @@ public class Week {
      * @param calendar ICalendar с расписанием на 2 недели
      * @return расписание на сегодняшний день
      */
+    @Override
     public String today(String calendar) {
         int numberOfDay = getNumberOfWeekDay(today);
         String todaySchedule = schedule.parseCalendar(calendar, today);
@@ -91,6 +95,7 @@ public class Week {
      * @param calendar ICalendar с расписанием на 2 недели
      * @return расписание на завтрашнюю день
      */
+    @Override
     public String tomorrow(String calendar) {
         Date tomorrowDate = getNextDay(today);
         int numberOfDay = getNumberOfWeekDay(tomorrowDate);
@@ -105,6 +110,7 @@ public class Week {
      * @param amountOfDays количество дней, на которое необходимо расписание
      * @return расписание на [amountOfDays] дней
      */
+    @Override
     public String week(String calendar, int amountOfDays) {
         StringBuilder fullSchedule = new StringBuilder();
         Date day = today;
