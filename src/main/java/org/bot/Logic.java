@@ -1,6 +1,7 @@
 package org.bot;
 
 import org.bot.Http.HttpRequest;
+import org.bot.Http.IHttpRequest;
 import org.bot.Telegram.Telegram;
 
 import java.util.Arrays;
@@ -10,13 +11,42 @@ import java.util.Objects;
  * Класс, реализующий базовую логику бота
  */
 public class Logic {
+
+    public void setLastMessage(String lastMessage) {
+        this.lastMessage = lastMessage;
+    }
+
     /**
      * Поле, хранящее последнее сообщение пользователя
      */
     private String lastMessage = null;
     private final String[] COMMAND_SCHEDULE = {"/today", "/tomorrow", "/week", "/weeks"};
     private final String[] ALL_COMMAND = {"/today", "/tomorrow", "/week", "/change", "/weeks"};
-    Group group = new Group();
+    private final IGroup group;
+    private final IWeek week;
+    private final IHttpRequest request;
+
+    /**
+     * Конструктор для тестирования
+     *
+     * @param request MockHttpRequest
+     * @param week    MockWeek
+     * @param group   MockGroup
+     */
+    public Logic(IHttpRequest request, IWeek week, IGroup group) {
+        this.request = request;
+        this.week = week;
+        this.group = group;
+    }
+
+    /**
+     * Конструктор по умолчанию
+     */
+    public Logic() {
+        this.request = new HttpRequest();
+        this.week = new Week();
+        this.group = new Group();
+    }
 
     /**
      * Метод, обрабатывающий сообщения пользователя
@@ -79,9 +109,6 @@ public class Logic {
      * @return ответ пользователю: расписание или предупреждающее сообщение
      */
     public String getReport(String report, String innerGroup) {
-        Week week = new Week();
-        HttpRequest request = new HttpRequest();
-
         if (innerGroup == null && Arrays.asList(COMMAND_SCHEDULE).contains(report)) {
             return Report.AUTHORIZATION_REPORT;
         }
