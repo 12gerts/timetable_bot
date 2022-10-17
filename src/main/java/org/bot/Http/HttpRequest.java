@@ -9,13 +9,14 @@ import java.net.URL;
 /**
  * Класс, формирующий и отправляющий GET-запросы к API УрФУ
  */
-public class HttpRequest {
+public class HttpRequest implements IHttpRequest{
     /**
      * Метод, формирующий GET-запрос для получения внутреннего номера группы
      *
      * @param group общий номер группы
      * @return внутренний номер группы
      */
+    @Override
     public String getInnerNumber(String group) {
         String query = "https://urfu.ru/api/schedule/groups/suggest/?query=" + group;
         return request(query);
@@ -27,6 +28,7 @@ public class HttpRequest {
      * @param innerNumber внутренний номер группы
      * @return ICalendar с расписанием занятий
      */
+    @Override
     public String getSchedule(String innerNumber) {
         String query = "https://urfu.ru/api/schedule/groups/calendar/" + innerNumber;
         return request(query);
@@ -59,8 +61,6 @@ public class HttpRequest {
                 }
 
                 return sb.toString();
-            } else {
-                System.out.println("fail");
             }
         } catch (IOException cause) {
             return null;
