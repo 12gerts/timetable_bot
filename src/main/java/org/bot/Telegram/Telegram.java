@@ -94,11 +94,19 @@ public class Telegram extends TelegramLongPollingBot {
                     outMess.setReplyMarkup(keyboards.replyKeyboardMarkup());
                     outMess.setText(response);
                 }
+                System.out.println(chatId);
                 execute(outMess);
             }
         } catch (TelegramApiException e) {
             e.printStackTrace();
         }
+    }
+    public synchronized void sendMessage(String chatId, String message) throws TelegramApiException {
+        SendMessage sendMessage = new SendMessage();
+        sendMessage.enableMarkdown(true);
+        sendMessage.setChatId(chatId);
+        sendMessage.setText(message);
+        execute(sendMessage);
     }
 
 
