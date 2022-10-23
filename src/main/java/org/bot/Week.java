@@ -2,9 +2,16 @@ package org.bot;
 
 import org.bot.Parser.Schedule;
 
+import java.awt.*;
+import java.text.DateFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.format.DateTimeParseException;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 
 /**
  * Класс, обрабатывающий дни недели для вывода расписания
@@ -17,7 +24,7 @@ public class Week implements IWeek{
 
     private final Schedule schedule = new Schedule();
 
-    public Week() {this.today = new Date();}
+    public Week() {this.today = parseDate("24/10/2022");}
     public Week(Date date) {this.today = date;}
     /**
      * Метод, переводящий номер дня недели в его название
@@ -45,11 +52,24 @@ public class Week implements IWeek{
      * @param date заданный день
      * @return следующий день
      */
-    private Date getNextDay(Date date) {
+    public Date getNextDay(Date date) {
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(date);
         calendar.add(Calendar.DATE, +1);
         return calendar.getTime();
+    }
+
+    public Date parseDate(String dateStr) {
+        try {
+            DateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+            return sdf.parse(dateStr);
+        } catch (ParseException e) {
+            return null;
+        }
+    }
+
+    public boolean isValid(String dateStr) {
+        return parseDate(dateStr) != null;
     }
 
     /**
@@ -83,10 +103,9 @@ public class Week implements IWeek{
      * @return расписание на сегодняшний день
      */
     @Override
-    public String today(String calendar) {
-        int numberOfDay = getNumberOfWeekDay(today);
-        String todaySchedule = schedule.parseCalendar(calendar, today);
-        return nameOfDay(numberOfDay) + "\n" + checkMissingSchedule(todaySchedule);
+    public List<String> today(String calendar) {
+        List<String> list = new ArrayList<>();
+        return schedule.parseCalendar(calendar, today, list);
     }
 
     /**

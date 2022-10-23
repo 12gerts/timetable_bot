@@ -2,19 +2,23 @@ package org.bot.Telegram;
 
 import org.bot.Logic;
 import org.bot.Reader;
+import org.bot.Week;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
+import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 import java.io.IOException;
-import java.util.HashMap;
+import java.util.*;
 
 public class Telegram extends TelegramLongPollingBot {
     private final Logic logic = new Logic();
     public static HashMap<String, String> map = new HashMap<>();
     private final Reader reader = new Reader();
+    private final Week week = new Week();
+    private final Keyboards keyboards = new Keyboards();
 
 
     /**
@@ -57,24 +61,46 @@ public class Telegram extends TelegramLongPollingBot {
     @Override
     public void onUpdateReceived(Update update) {
         try {
-            if (update.hasMessage() && update.getMessage().hasText()) {
-                Message inMess = update.getMessage();
-                String chatId = inMess.getChatId().toString();
+            if (update.hasMessage() && update.getMessage().hasText() ||
+                    update.hasCallbackQuery() && update.getCallbackQuery().getMessage().hasText()) {
+                String chatId;
+                String textMessage;
+
+                if (update.hasMessage() && update.getMessage().hasText()) {
+                    Message inMess = update.getMessage();
+                    chatId = inMess.getChatId().toString();
+                    textMessage = inMess.getText();
+                } else {
+                    CallbackQuery inMess = update.getCallbackQuery();
+                    chatId = inMess.getMessage().getChatId().toString();
+                    textMessage = inMess.getData();
+                }
 
                 if (!map.containsKey(chatId)) {
                     map.put(chatId, null);
                 }
 
-                String response = logic.parseMessage(inMess.getText(), chatId);
-
                 SendMessage outMess = new SendMessage();
                 outMess.setChatId(chatId);
-                outMess.setText(response);
 
+                if (Objects.equals(textMessage, "Расписание на 1 день")) {
+                    outMess.setReplyMarkup(keyboards.inlineKeyBoardDay());
+                    outMess.setText("Выберите день");
+                } else if (week.isValid(textMessage)) {
+                    outMess.setReplyMarkup(keyboards.inlineKeyBoardSchedule());
+                    outMess.setText("Расписание на " + textMessage);
+                } else {
+                    String response = logic.parseMessage(textMessage, chatId);
+                    outMess.setReplyMarkup(keyboards.replyKeyboardMarkup());
+                    outMess.setText(response);
+                }
                 execute(outMess);
             }
         } catch (TelegramApiException e) {
             e.printStackTrace();
         }
     }
+
+
+
 }

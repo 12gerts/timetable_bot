@@ -4,7 +4,9 @@ import org.bot.Http.HttpRequest;
 import org.bot.Http.IHttpRequest;
 import org.bot.Telegram.Telegram;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -48,6 +50,16 @@ public class Logic {
         this.group = new Group();
     }
 
+    private String handle(String textMsg) {
+        return switch (textMsg) {
+            case "Расписание на 1 день" -> "/today";
+            case "Изменить номер группы" -> "/change";
+            case "1 неделя" -> "/week";
+            case "2 недели" -> "/weeks";
+            default -> textMsg;
+        };
+    }
+
     /**
      * Метод, обрабатывающий сообщения пользователя
      *
@@ -56,7 +68,7 @@ public class Logic {
      * @return ответ пользователю
      */
     public String parseMessage(String textMsg, String chatId) {
-
+        textMsg = handle(textMsg);
         String response;
         // для случая, если несколько раз запрашиваем расписание, не вводя группу
         if (Arrays.asList(ALL_COMMAND).contains(lastMessage) && Arrays.asList(ALL_COMMAND).contains(textMsg)) {
@@ -114,12 +126,16 @@ public class Logic {
         }
         String calendar = request.getSchedule(innerGroup);
         return switch (report) {
-            case "/today" -> week.today(calendar);
             case "/tomorrow" -> week.tomorrow(calendar);
             case "/week" -> week.week(calendar, 7);
             case "/weeks" -> week.week(calendar, 14);
             default -> Report.DEFAULT_REPORT;
         };
+    }
+
+    public List<String> getReportKey(String report, String innerGroup) {
+        String calendar = request.getSchedule(innerGroup);
+        return week.today(calendar);
     }
 }
 

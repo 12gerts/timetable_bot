@@ -17,13 +17,6 @@ public class WeekTest {
     public WeekTest() throws ParseException {
     }
 
-    @Test
-    void getToday() throws IOException {
-        String calendar = reader.readFile("src/test/resources/calendar.ics");
-        String expected = reader.readFile("src/test/resources/today.txt");
-        String actual = week.today(calendar);
-        assertEquals(expected, actual);
-    }
 
 
     @Test

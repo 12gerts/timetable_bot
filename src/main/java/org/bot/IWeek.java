@@ -1,7 +1,9 @@
 package org.bot;
 
+import java.util.List;
+
 public interface IWeek {
-    String today(String calendar);
+    List<String> today(String calendar);
     String tomorrow(String calendar);
     String week(String calendar, int amountOfDays);
 }
