@@ -12,7 +12,7 @@ public class Main {
             mThing = new Notification();
 
             Thread myThready = new Thread(mThing);
-            myThready.start();
+            //myThready.start();
 
             TelegramBotsApi telegramBotsApi = new TelegramBotsApi(DefaultBotSession.class);
             telegramBotsApi.registerBot(new Telegram());

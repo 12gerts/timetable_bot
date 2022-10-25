@@ -2,12 +2,9 @@ package org.bot;
 
 import org.bot.Parser.Schedule;
 
-import java.awt.*;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.time.LocalDate;
-import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -24,15 +21,19 @@ public class Week implements IWeek{
 
     private final Schedule schedule = new Schedule();
 
-    public Week() {this.today = parseDate("24/10/2022");}
-    public Week(Date date) {this.today = date;}
+    public Week() {
+        this.today = new Date();
+    }
+    public Week(Date date) {
+        this.today = date;
+    }
     /**
      * Метод, переводящий номер дня недели в его название
      *
      * @param numberOfDay номер дня недели
      * @return название дня недели
      */
-    private String nameOfDay(int numberOfDay) {
+    public String nameOfDay(int numberOfDay) {
         return switch (numberOfDay) {
             case 1 -> "Понедельник";
             case 2 -> "Вторник";
@@ -41,6 +42,25 @@ public class Week implements IWeek{
             case 5 -> "Пятница";
             case 6 -> "Суббота";
             case 7 -> "Воскресенье";
+            default -> throw new IllegalStateException("Unexpected value: " + numberOfDay);
+        };
+    }
+
+    @Override
+    public boolean evenness() {
+        String weekNumber = new SimpleDateFormat("w").format(today);
+        return Integer.parseInt(weekNumber) % 2 == 0;
+    }
+
+    public String shortNameOfDay(int numberOfDay) {
+        return switch (numberOfDay) {
+            case 1 -> "(пн)";
+            case 2 -> "(вт)";
+            case 3 -> "(ср)";
+            case 4 -> "(чт)";
+            case 5 -> "(пт)";
+            case 6 -> "(сб)";
+            case 7 -> "(вс)";
             default -> throw new IllegalStateException("Unexpected value: " + numberOfDay);
         };
     }
@@ -61,7 +81,7 @@ public class Week implements IWeek{
 
     public Date parseDate(String dateStr) {
         try {
-            DateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+            DateFormat sdf = new SimpleDateFormat("dd.MM.yyyy");
             return sdf.parse(dateStr);
         } catch (ParseException e) {
             return null;
@@ -91,7 +111,7 @@ public class Week implements IWeek{
      * @param date заданная дата
      * @return порядковый номер дня недели
      */
-    private int getNumberOfWeekDay(Date date) {
+    public int getNumberOfWeekDay(Date date) {
         SimpleDateFormat formatDate = new SimpleDateFormat("u");
         return Integer.parseInt(formatDate.format(date));
     }
@@ -103,22 +123,15 @@ public class Week implements IWeek{
      * @return расписание на сегодняшний день
      */
     @Override
-    public List<String> today(String calendar) {
+    public List<String> today(String calendar, Date date) {
         List<String> list = new ArrayList<>();
-        return schedule.parseCalendar(calendar, today, list);
+        return schedule.parseCalendar(calendar, date, list);
     }
 
-    /**
-     * Метод, возвращающий расписание на завтрашнюю дату
-     *
-     * @param calendar ICalendar с расписанием на 2 недели
-     * @return расписание на завтрашнюю день
-     */
     @Override
-    public String tomorrow(String calendar) {
-        Date tomorrowDate = getNextDay(today);
-        int numberOfDay = getNumberOfWeekDay(tomorrowDate);
-        String tomorrowSchedule = schedule.parseCalendar(calendar, tomorrowDate);
+    public String day(String calendar, Date date) {
+        int numberOfDay = getNumberOfWeekDay(date);
+        String tomorrowSchedule = schedule.parseCalendar(calendar, date);
         return nameOfDay(numberOfDay) + "\n" + checkMissingSchedule(tomorrowSchedule);
     }
 

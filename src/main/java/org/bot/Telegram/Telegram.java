@@ -2,7 +2,7 @@ package org.bot.Telegram;
 
 import org.bot.Logic;
 import org.bot.Reader;
-import org.bot.Week;
+import org.bot.Telegram.Keyboards.Keyboards;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
@@ -13,11 +13,12 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import java.io.IOException;
 import java.util.*;
 
+import static org.bot.Telegram.Keyboards.KeyboardType.INLINE;
+
 public class Telegram extends TelegramLongPollingBot {
     private final Logic logic = new Logic();
     public static HashMap<String, String> map = new HashMap<>();
     private final Reader reader = new Reader();
-    private final Week week = new Week();
     private final Keyboards keyboards = new Keyboards();
 
 
@@ -82,25 +83,22 @@ public class Telegram extends TelegramLongPollingBot {
 
                 SendMessage outMess = new SendMessage();
                 outMess.setChatId(chatId);
+                outMess.setReplyMarkup(keyboards.replyKeyboardMarkup());
 
-                if (Objects.equals(textMessage, "Расписание на 1 день")) {
-                    outMess.setReplyMarkup(keyboards.inlineKeyBoardDay());
-                    outMess.setText("Выберите день");
-                } else if (week.isValid(textMessage)) {
-                    outMess.setReplyMarkup(keyboards.inlineKeyBoardSchedule());
-                    outMess.setText("Расписание на " + textMessage);
-                } else {
-                    String response = logic.parseMessage(textMessage, chatId);
-                    outMess.setReplyMarkup(keyboards.replyKeyboardMarkup());
-                    outMess.setText(response);
+                String response = logic.parseMessage(textMessage, chatId);
+
+                if (logic.getKeyboardType(response) == INLINE) {
+                    outMess.setReplyMarkup(keyboards.inlineKeyBoard(logic.getButtonType(), chatId, textMessage));
                 }
-                System.out.println(chatId);
+
+                outMess.setText(response);
                 execute(outMess);
             }
         } catch (TelegramApiException e) {
             e.printStackTrace();
         }
     }
+
     public synchronized void sendMessage(String chatId, String message) throws TelegramApiException {
         SendMessage sendMessage = new SendMessage();
         sendMessage.enableMarkdown(true);
@@ -108,7 +106,6 @@ public class Telegram extends TelegramLongPollingBot {
         sendMessage.setText(message);
         execute(sendMessage);
     }
-
 
 
 }

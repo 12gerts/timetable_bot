@@ -28,5 +28,9 @@ public class Report {
     public static final String DEFAULT_REPORT = "Неизвестная команда :( Для просмотра команд введите команду /help";
     public static final String GROUP_CHANGE = "Номер группы успешно изменен";
     public static final String NO_SCHEDULE = "На данный день расписание отсутствует";
+    public static final String CHOOSE_DAY = "Выберите день";
+    public static final String SCHEDULE = "Расписание на ";
+    public static final String ODD = "Неделя нечетная (верхняя)";
+    public static final String EVEN = "Неделя четная (нижняя)";
 }
 
