@@ -12,7 +12,8 @@ import java.util.List;
 import java.util.Objects;
 
 import static org.bot.Telegram.Keyboards.ButtonType.*;
-import static org.bot.Telegram.Keyboards.KeyboardType.*;
+import static org.bot.Telegram.Keyboards.KeyboardType.INLINE;
+import static org.bot.Telegram.Keyboards.KeyboardType.REPLY;
 
 /**
  * Класс, реализующий базовую логику бота
