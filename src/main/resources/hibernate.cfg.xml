@@ -11,5 +11,6 @@
     <property name="show_sql">true</property>
     <property name="hibernate.format_sql">true</property>
     <mapping class="org.bot.Entity.Ntf"/>
+    <mapping class="org.bot.Entity.SendMessage"/>
   </session-factory>
 </hibernate-configuration>

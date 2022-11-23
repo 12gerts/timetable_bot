@@ -2,35 +2,30 @@ package org.bot.Entity;
 
 
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
+import org.hibernate.annotations.Cascade;
 
 import java.io.Serializable;
 import java.util.Date;
 
 @Entity
 @Table(name = "notification")
+@Getter
+@Setter
 public class Ntf implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "id", nullable = false)
     private Long id;
 
+    private Long chatId;
+
     private String content;
 
     private Date date;
 
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getContent() {
-        return content;
-    }
-
-    public void setContent(String content) {
-        this.content = content;
-    }
+    @OneToOne(mappedBy = "ntf")
+    @Cascade(value = org.hibernate.annotations.CascadeType.SAVE_UPDATE)
+    private SendMessage sendMessage;
 }
