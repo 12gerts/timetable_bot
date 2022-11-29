@@ -4,7 +4,6 @@ package org.bot.Entity;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
-import org.hibernate.annotations.Cascade;
 
 import java.io.Serializable;
 import java.util.Date;
@@ -25,7 +24,6 @@ public class Ntf implements Serializable {
 
     private Date date;
 
-    @OneToOne(mappedBy = "ntf")
-    @Cascade(value = org.hibernate.annotations.CascadeType.SAVE_UPDATE)
+    @OneToOne(mappedBy = "ntf", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private SendMessage sendMessage;
 }

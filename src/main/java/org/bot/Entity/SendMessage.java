@@ -9,11 +9,12 @@ import org.hibernate.annotations.Parameter;
 @Entity
 @Getter
 @Setter
+@Table(name = "sendmessage")
 public class SendMessage {
     @Id
     @Column(name = "id", nullable = false)
     @GeneratedValue(generator = "gen")
-    @GenericGenerator(name = "gen", strategy = "foreign", parameters = {@Parameter(name = "property", value = "txn")})
+    @GenericGenerator(name = "gen", strategy = "foreign", parameters = {@Parameter(name = "property", value = "ntf")})
     private Long id;
 
     private boolean isSend;

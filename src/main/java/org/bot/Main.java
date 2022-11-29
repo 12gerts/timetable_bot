@@ -10,11 +10,6 @@ import org.telegram.telegrambots.updatesreceivers.DefaultBotSession;
 
 public class Main {
     public static void main(String[] args) {
-
-//        Session session = HibernateUtil.getSessionFactory().openSession();
-//        for (Ntf ntf : new NtfServices().getNtfList()) {
-//            System.out.println(ntf.getContent());
-//        }
         SessionFactory sessionFactory = HibernateUtil.getSessionFactory();
 
         Notification mThing;
@@ -29,7 +24,5 @@ public class Main {
         } catch (TelegramApiException e) {
             e.printStackTrace();
         }
-
-
     }
 }
