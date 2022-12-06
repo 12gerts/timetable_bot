@@ -14,14 +14,23 @@ import org.hibernate.query.Query;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-
+/**
+ * Класс для работы с базой данных с помощью hibernate
+ */
 public class NtfServices {
     private final SessionFactory sessionFactory;
 
+    /**
+     * Констурктор по умолчанию
+     */
     public NtfServices() {
         sessionFactory = HibernateUtil.getSessionFactory();
     }
 
+    /**
+     *
+     * @return список всех оповещений
+     */
     public List<Ntf> getNtfList() {
         Session session = sessionFactory.openSession();
         CriteriaBuilder criteriaBuilder = session.getCriteriaBuilder();
@@ -34,6 +43,10 @@ public class NtfServices {
         return ntfList;
     }
 
+    /**
+     *
+     * @return список статуса всех оповещений
+     */
     public List<SendMessage> getSendMessageList() {
         Session session = sessionFactory.openSession();
         CriteriaBuilder criteriaBuilder = session.getCriteriaBuilder();
@@ -46,7 +59,11 @@ public class NtfServices {
         return sendMessageList;
     }
 
-    public void BuildTransaction(Ntf ntf) {
+    /**
+     * Сохраняет переданое сообщение в базу данных
+     * @param ntf
+     */
+    public void buildTransaction(Ntf ntf) {
         Session session = HibernateUtil.getSessionFactory().openSession();
         Transaction tx = session.beginTransaction();
         session.persist(ntf);
@@ -54,22 +71,47 @@ public class NtfServices {
         session.close();
     }
 
-    public void UpdateTransactionContennt(Long id, String content) {
+    /**
+     * Обновляет текст сообщения по id
+     * @param id транзакции
+     * @param content содержание сообщения
+     */
+    public void updateTransactionContent(Long id, String content) {
         //save example - existing row in table
         Session session = sessionFactory.openSession();
         Transaction tx = session.beginTransaction();
-        Ntf ntf = (Ntf) session.get(Ntf.class, new Long(id));
+        Ntf ntf = (Ntf) session.get(Ntf.class, id);
         //update some data
         ntf.setContent(content);
         tx.commit();
         sessionFactory.close();
     }
 
-    public Ntf CreateNotification(String content, Long chatId) {
+    /**
+     * Обновляет статус сообщения на отправленный
+     * @param id транзакции
+     */
+    public void updateSendStatus(Long id) {
+        Session session = sessionFactory.openSession();
+        Transaction tx = session.beginTransaction();
+        Ntf ntf = (Ntf) session.get(Ntf.class, id);
+        ntf.getSendMessage().setSend(true);
+        tx.commit();
+        sessionFactory.close();
+    }
+
+    /**
+     * Создает элемент для базы данных
+     * @param content текст сообщения
+     * @param chatId id пользователя
+     * @param date дата когда нужно отправить сообщения
+     * @return элемент для базы данных
+     */
+    public Ntf createNotification(String content, Long chatId, Date date) {
         Ntf ntf = new Ntf();
         ntf.setContent(content);
         ntf.setChatId(chatId);
-        ntf.setDate(new Date());
+        ntf.setDate(date);
         SendMessage sendMessage = new SendMessage();
         sendMessage.setSend(false);
         ntf.setSendMessage(sendMessage);
@@ -77,7 +119,10 @@ public class NtfServices {
         return ntf;
     }
 
-    public void PrintAllSendMessageDB() {
+    /**
+     * Выводит все элементы из датабазы
+     */
+    public void printAllSendMessageDB() {
         Session session = HibernateUtil.getSessionFactory().openSession();
         for (SendMessage sendMessage : new NtfServices().getSendMessageList()) {
             System.out.println(sendMessage.toString());
@@ -85,13 +130,18 @@ public class NtfServices {
         session.close();
     }
 
-    public void PrintAllNtfDB() {
+    public void printAllNtfDB() {
         Session session = HibernateUtil.getSessionFactory().openSession();
         for (Ntf ntf : new NtfServices().getNtfList()) {
             System.out.println(ntf.toString());
         }
         session.close();
     }
+
+    /**
+     * С помощью SQL запроса запрашивает все не отправленные сообщения
+     * @return Список всех не отправленных сообщений
+     */
     public List<SendMessage> getAllNotSendMessage() {
         Transaction transaction = null;
         List<SendMessage> result;
