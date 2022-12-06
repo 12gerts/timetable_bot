@@ -26,4 +26,9 @@ public class Ntf implements Serializable {
 
     @OneToOne(mappedBy = "ntf", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private SendMessage sendMessage;
+
+    @Override
+    public String toString() {
+        return "Id = " + id + "\nchatId = " + chatId + "\ncontent = " + content + "\ndate = " + date;
+    }
 }

@@ -21,4 +21,9 @@ public class SendMessage {
     @OneToOne
     @PrimaryKeyJoinColumn
     private Ntf ntf;
+
+    @Override
+    public String toString() {
+        return "Id = " + id + "\n isSend = " + isSend + "\n";
+    }
 }
