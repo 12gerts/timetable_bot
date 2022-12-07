@@ -155,4 +155,26 @@ public class NtfServices {
         }
         return result;
     }
+
+    /**
+     * Метод, который по id ищет строчку в нем
+     * @param searchUserId Id который нужно найти в базе данных
+     * @return объект класса ntf которому присвоен такой id
+     */
+    public Ntf findById(String searchUserId) {
+        Transaction transaction = null;
+        Ntf result;
+        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+            transaction = session.beginTransaction();
+            Query<Ntf> query = session.createQuery("SELECT b FROM Ntf b WHERE b.id = :id", Ntf.class);
+            query.setParameter("id", searchUserId);
+            result = query.uniqueResult();
+            transaction.commit();
+        } catch (Exception e) {
+            System.err.print(e.getMessage());
+            return null;
+        }
+        return result;
+    }
+
 }
