@@ -145,14 +145,10 @@ public class NtfServices {
     public List<SendMessage> getAllNotSendMessage() {
         Transaction transaction = null;
         List<SendMessage> result;
-        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
-            transaction = session.beginTransaction();
-            result = new ArrayList<>(session.createQuery("select id from SendMessage where isSend = false", SendMessage.class).getResultList());
-            transaction.commit();
-        } catch (Exception e) {
-            System.err.println(e.getMessage());
-            return new ArrayList<>();
-        }
+        Session session = sessionFactory.openSession();
+        transaction = session.beginTransaction();
+        result = new ArrayList<>(session.createQuery("select id from SendMessage where isSend = false", SendMessage.class).getResultList());
+        transaction.commit();
         return result;
     }
 
@@ -164,17 +160,12 @@ public class NtfServices {
     public Ntf findById(String searchUserId) {
         Transaction transaction = null;
         Ntf result;
-        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
-            transaction = session.beginTransaction();
-            Query<Ntf> query = session.createQuery("SELECT b FROM Ntf b WHERE b.id = :id", Ntf.class);
-            query.setParameter("id", searchUserId);
-            result = query.uniqueResult();
-            transaction.commit();
-        } catch (Exception e) {
-            System.err.print(e.getMessage());
-            return null;
-        }
+        Session session = sessionFactory.openSession();
+        transaction = session.beginTransaction();
+        Query<Ntf> query = session.createQuery("SELECT b FROM Ntf b WHERE b.id = :id", Ntf.class);
+        query.setParameter("id", searchUserId);
+        result = query.uniqueResult();
+        transaction.commit();
         return result;
     }
-
 }
