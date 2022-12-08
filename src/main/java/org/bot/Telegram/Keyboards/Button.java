@@ -42,7 +42,7 @@ public class Button {
             keyboardButtonsRow1 = new ArrayList<>();
             InlineKeyboardButton inlineKeyboardButton1 = new InlineKeyboardButton();
             inlineKeyboardButton1.setText(subject);
-            inlineKeyboardButton1.setCallbackData(subject);
+            inlineKeyboardButton1.setCallbackData("sbj0" + subject);
             keyboardButtonsRow1.add(inlineKeyboardButton1);
             rowList.add(keyboardButtonsRow1);
         }

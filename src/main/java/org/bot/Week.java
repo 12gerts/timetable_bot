@@ -79,13 +79,17 @@ public class Week implements IWeek{
         return calendar.getTime();
     }
 
-    public Date parseDate(String dateStr) {
+    public Date parseDate(String dateStr, DateFormat sdf) {
         try {
-            DateFormat sdf = new SimpleDateFormat("dd.MM.yyyy");
             return sdf.parse(dateStr);
         } catch (ParseException e) {
             return null;
         }
+    }
+
+    public Date parseDate(String dateStr) {
+        DateFormat sdf = new SimpleDateFormat("dd.MM.yyyy");
+        return parseDate(dateStr, sdf);
     }
 
     public boolean isValid(String dateStr) {

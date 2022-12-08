@@ -1,19 +1,26 @@
 package org.bot;
 
+import org.bot.Entity.Ntf;
 import org.bot.Http.HttpRequest;
 import org.bot.Http.IHttpRequest;
+import org.bot.Notification.UserAnswer;
+import org.bot.Services.NtfServices;
 import org.bot.Telegram.Keyboards.ButtonType;
 import org.bot.Telegram.Keyboards.KeyboardType;
 import org.bot.Telegram.Telegram;
 
 import java.io.IOException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 
 import static org.bot.Telegram.Keyboards.ButtonType.*;
 import static org.bot.Telegram.Keyboards.KeyboardType.INLINE;
 import static org.bot.Telegram.Keyboards.KeyboardType.REPLY;
+import static org.bot.Notification.Handler.treeMap;
 
 /**
  * Класс, реализующий базовую логику бота
@@ -28,10 +35,13 @@ public class Logic {
      * Поле, хранящее последнее сообщение пользователя
      */
     private String lastMessage = null;
+    private UserAnswer userAnswer;
     private final String[] COMMAND_WEEK = {"/week", "/weeks"};
     private final String[] COMMAND_BUTTON_DAYS = {"/day", "/add"};
     private final String[] COMMAND_WITH_GROUP = {"/day", "/add", "/week", "/weeks", "/change"};
     private final IGroup group;
+    private final NtfServices ntf;
+    private final DateFormat dateFormat = new SimpleDateFormat("dd.MM.yyyy HH:mm");
     private final IWeek week;
     private final IHttpRequest request;
 
@@ -47,12 +57,14 @@ public class Logic {
      * @param request MockHttpRequest
      * @param week    MockWeek
      * @param group   MockGroup
+     * @param ntf     MockNtf
      */
 
-    public Logic(IHttpRequest request, IWeek week, IGroup group) {
+    public Logic(IHttpRequest request, IWeek week, IGroup group, NtfServices ntf) {
         this.request = request;
         this.week = week;
         this.group = group;
+        this.ntf = ntf;
     }
 
     /**
@@ -62,8 +74,16 @@ public class Logic {
         this.request = new HttpRequest();
         this.week = new Week();
         this.group = new Group();
+        this.userAnswer = new UserAnswer();
+        this.ntf = new NtfServices();
     }
 
+    /**
+     * Метод, определяющий тип клавиатуры
+     *
+     * @param textMsg сообщение пользователя
+     * @return тип клавиатуры
+     */
     public Enum<KeyboardType> getKeyboardType(String textMsg) {
         KeyboardType keyboardType;
         if (Objects.equals(textMsg, Report.CHOOSE_DAY)) {
@@ -79,6 +99,12 @@ public class Logic {
         return keyboardType;
     }
 
+    /**
+     * Замена сообщений на специальные команды
+     *
+     * @param textMsg сообщение
+     * @return специальная команда
+     */
 
     private String handle(String textMsg) {
         return switch (textMsg) {
@@ -109,10 +135,41 @@ public class Logic {
         }
     }
 
+    /**
+     * Обработка неспециальных команд
+     *
+     * @param textMsg сообщение пользователя
+     * @param chatId  внутренний номер чата
+     * @return ответ пользователю
+     */
     public String getNonSpecialHandler(String textMsg, String chatId) {
         String response = null;
-        // Переделать
-        if (week.isValid(textMsg) && Telegram.map.get(chatId) != null) {
+        if (textMsg.length() > 3 && Objects.equals(textMsg.substring(0, 4), Report.SUBJECT)) {
+            userAnswer.setSubject(textMsg.substring(4));
+            lastMessage = Report.SUBJECT;
+            response = Report.ASK_DATE;
+        } else if (Objects.equals(lastMessage, Report.SUBJECT)) {
+            Date currentDate = week.parseDate(textMsg, dateFormat);
+            if (currentDate != null) {
+                userAnswer.setDate(currentDate);
+                lastMessage = Report.ASK_MESSAGE;
+                response = Report.ASK_MESSAGE;
+            } else {
+                response = Report.RETRY_DATE;
+            }
+        } else if (Objects.equals(lastMessage, Report.ASK_MESSAGE)) {
+            userAnswer.setMessage(textMsg);
+            Ntf notification = ntf.createNotification(
+                    userAnswer.getMessage(),
+                    Long.valueOf(chatId),
+                    userAnswer.getDate(),
+                    userAnswer.getSubject()
+            );
+            ntf.buildTransaction(notification);
+            treeMap.put(userAnswer.getDate(), notification.getId());
+            response = Report.DONE;
+            lastMessage = null;
+        } else if (week.isValid(textMsg) && Telegram.map.get(chatId) != null) {
             if (Objects.equals(lastMessage, "/day")) {
                 // подается дата в /day, когда задана группа
                 return getReport(textMsg, Telegram.map.get(chatId));
@@ -147,6 +204,13 @@ public class Logic {
     }
 
 
+    /**
+     * Обработка специальных команд
+     *
+     * @param textMsg сообщение пользователя
+     * @param chatId  внутренний номер чата
+     * @return ответ пользователю
+     */
     public String getSpecialHandler(String textMsg, String chatId) {
         String response;
         if (textMsg.equals("/start")) {
@@ -215,6 +279,12 @@ public class Logic {
         };
     }
 
+    /**
+     * Метод, возвращающий массив, элементами которого являются предметы
+     *
+     * @param innerNumber внутренний номер чата
+     * @param date        дата, на которую составляется расписание
+     */
     public List<String> getReportKey(String innerNumber, String date) {
         String calendar = request.getSchedule(innerNumber);
         return week.today(calendar, week.parseDate(date));

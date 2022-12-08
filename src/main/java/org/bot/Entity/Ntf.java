@@ -21,6 +21,7 @@ public class Ntf implements Serializable {
     private Long chatId;
 
     private String content;
+    private String subject;
 
     private Date date;
 

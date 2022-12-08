@@ -4,24 +4,27 @@ public class Report {
     public static final String START_REPORT = "Привет!\n" + "Чтобы узнать обо мне введите команду /help";
     public static final String HELP_REPORT = """
             Я умею показывать расписание и добавлять домашнее задание
-            
+                        
             /help
             вывести это сообщение
-            
-            /today
-            узнать расписание на сегодня
-            
-            /tomorrow
-            узнать расписание на завтра
-            
+                        
+            /day
+            узнать расписание на любой день в течение 2 недель
+                        
             /week
             узнать расписание на неделю
-            
+                        
             /weeks
             узнать расписание на 2 недели
-            
+                        
             /change
             изменить номер группы
+                        
+            /evenness
+            узнать четность недели
+                        
+            /call
+            расписание звонков
             """;
     public static final String AUTHORIZATION_REPORT = "Введите номер группы в формате [код института]-ХХХХХХ";
     public static final String REQUEST_ERROR = "Ошибка\nПроверьте правильность группы или интернет-соединение";
@@ -32,5 +35,11 @@ public class Report {
     public static final String SCHEDULE = "Расписание на ";
     public static final String ODD = "Неделя нечетная (верхняя)";
     public static final String EVEN = "Неделя четная (нижняя)";
+    public static final String SUBJECT = "sbj0";
+    public static final String ASK_MESSAGE = "Введите текст уведомления";
+    public static final String DONE = "Уведомление успешно добавлено";
+    public static final String ASK_DATE = "Введите дату и время в формате DD.MM.YYYY HH:MM";
+    public static final String RETRY_DATE = "Неверный формат ввода. Повторите попытку";
+    public static final String BEFORE_DATE = "Введенная дата уже прошла. Повторите попытку";
 }
 

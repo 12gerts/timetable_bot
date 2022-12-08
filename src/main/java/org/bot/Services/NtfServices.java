@@ -14,6 +14,7 @@ import org.hibernate.query.Query;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+
 /**
  * Класс для работы с базой данных с помощью hibernate
  */
@@ -21,14 +22,13 @@ public class NtfServices {
     private final SessionFactory sessionFactory;
 
     /**
-     * Констурктор по умолчанию
+     * Конструктор по умолчанию
      */
     public NtfServices() {
         sessionFactory = HibernateUtil.getSessionFactory();
     }
 
     /**
-     *
      * @return список всех оповещений
      */
     public List<Ntf> getNtfList() {
@@ -44,7 +44,6 @@ public class NtfServices {
     }
 
     /**
-     *
      * @return список статуса всех оповещений
      */
     public List<SendMessage> getSendMessageList() {
@@ -60,8 +59,8 @@ public class NtfServices {
     }
 
     /**
-     * Сохраняет переданое сообщение в базу данных
-     * @param ntf
+     * Сохраняет переданное сообщение в базу данных
+     *
      */
     public void buildTransaction(Ntf ntf) {
         Session session = HibernateUtil.getSessionFactory().openSession();
@@ -73,7 +72,8 @@ public class NtfServices {
 
     /**
      * Обновляет текст сообщения по id
-     * @param id транзакции
+     *
+     * @param id      транзакции
      * @param content содержание сообщения
      */
     public void updateTransactionContent(Long id, String content) {
@@ -84,11 +84,12 @@ public class NtfServices {
         //update some data
         ntf.setContent(content);
         tx.commit();
-        sessionFactory.close();
+        session.close();
     }
 
     /**
      * Обновляет статус сообщения на отправленный
+     *
      * @param id транзакции
      */
     public void updateSendStatus(Long id) {
@@ -97,21 +98,23 @@ public class NtfServices {
         Ntf ntf = (Ntf) session.get(Ntf.class, id);
         ntf.getSendMessage().setSend(true);
         tx.commit();
-        sessionFactory.close();
+        session.close();
     }
 
     /**
      * Создает элемент для базы данных
+     *
      * @param content текст сообщения
-     * @param chatId id пользователя
-     * @param date дата когда нужно отправить сообщения
+     * @param chatId  id пользователя
+     * @param date    дата когда нужно отправить сообщения
      * @return элемент для базы данных
      */
-    public Ntf createNotification(String content, Long chatId, Date date) {
+    public Ntf createNotification(String content, Long chatId, Date date, String subject) {
         Ntf ntf = new Ntf();
         ntf.setContent(content);
         ntf.setChatId(chatId);
         ntf.setDate(date);
+        ntf.setSubject(subject);
         SendMessage sendMessage = new SendMessage();
         sendMessage.setSend(false);
         ntf.setSendMessage(sendMessage);
@@ -140,19 +143,36 @@ public class NtfServices {
 
     /**
      * С помощью SQL запроса запрашивает все не отправленные сообщения
+     *
      * @return Список всех не отправленных сообщений
      */
     public List<SendMessage> getAllNotSendMessage() {
         Transaction transaction = null;
         List<SendMessage> result;
-        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
-            transaction = session.beginTransaction();
-            result = new ArrayList<>(session.createQuery("select id from SendMessage where isSend = false", SendMessage.class).getResultList());
-            transaction.commit();
-        } catch (Exception e) {
-            System.err.println(e.getMessage());
-            return new ArrayList<>();
-        }
+        Session session = sessionFactory.openSession();
+        transaction = session.beginTransaction();
+        result = new ArrayList<>(session.createQuery("select id from SendMessage where isSend = false", SendMessage.class).getResultList());
+        transaction.commit();
+        session.close();
+        return result;
+    }
+
+    /**
+     * Метод, который по id ищет строчку в нем
+     *
+     * @param searchUserId Id который нужно найти в базе данных
+     * @return объект класса ntf которому присвоен такой id
+     */
+    public Ntf findById(String searchUserId) {
+        Transaction transaction = null;
+        Ntf result;
+        Session session = sessionFactory.openSession();
+        transaction = session.beginTransaction();
+        Query<Ntf> query = session.createQuery("SELECT b FROM Ntf b WHERE b.id = :id", Ntf.class);
+        query.setParameter("id", searchUserId);
+        result = query.uniqueResult();
+        transaction.commit();
+        session.close();
         return result;
     }
 }
