@@ -84,7 +84,7 @@ public class NtfServices {
         //update some data
         ntf.setContent(content);
         tx.commit();
-        sessionFactory.close();
+        session.close();
     }
 
     /**
@@ -97,7 +97,7 @@ public class NtfServices {
         Ntf ntf = (Ntf) session.get(Ntf.class, id);
         ntf.getSendMessage().setSend(true);
         tx.commit();
-        sessionFactory.close();
+        session.close();
     }
 
     /**
@@ -149,6 +149,7 @@ public class NtfServices {
         transaction = session.beginTransaction();
         result = new ArrayList<>(session.createQuery("select id from SendMessage where isSend = false", SendMessage.class).getResultList());
         transaction.commit();
+        session.close();
         return result;
     }
 
@@ -166,6 +167,7 @@ public class NtfServices {
         query.setParameter("id", searchUserId);
         result = query.uniqueResult();
         transaction.commit();
+        session.close();
         return result;
     }
 }
