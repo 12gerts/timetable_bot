@@ -1,7 +1,7 @@
 package org.bot.Telegram.Keyboards;
 
 import org.bot.Logic;
-import org.bot.Telegram.Telegram;
+import org.bot.Repository.GroupRepository;
 import org.bot.Week;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardButton;
@@ -14,8 +14,16 @@ import java.util.Date;
 import java.util.List;
 
 public class Button {
+    private final Logic logic;
+    private final GroupRepository groupRepository;
+
     private final Week week = new Week();
-    private final Logic logic = new Logic();
+
+    public Button(GroupRepository groupRepository, Logic logic) {
+        this.groupRepository = groupRepository;
+        this.logic = logic;
+    }
+
     private final DateFormat df = new SimpleDateFormat("dd.MM.yyyy");
 
     public List<List<InlineKeyboardButton>> getInlineButtonDays() {
@@ -37,7 +45,7 @@ public class Button {
     public List<List<InlineKeyboardButton>> getInlineButtonSchedule(String chatId, String date) {
         List<InlineKeyboardButton> keyboardButtonsRow1;
         List<List<InlineKeyboardButton>> rowList = new ArrayList<>();
-        List<String> subjects = logic.getReportKey(Telegram.map.get(chatId), date);
+        List<String> subjects = logic.getReportKey(groupRepository.getGroupNumber(chatId), date);
         for (String subject: subjects) {
             keyboardButtonsRow1 = new ArrayList<>();
             InlineKeyboardButton inlineKeyboardButton1 = new InlineKeyboardButton();

@@ -2,6 +2,7 @@ package org.bot.Telegram;
 
 import org.bot.Logic;
 import org.bot.Reader;
+import org.bot.Repository.GroupRepository;
 import org.bot.Telegram.Keyboards.Keyboards;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
@@ -11,15 +12,21 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 import java.io.IOException;
-import java.util.HashMap;
 
 import static org.bot.Telegram.Keyboards.KeyboardType.INLINE;
 
-public class Telegram extends TelegramLongPollingBot {
-    private final Logic logic = new Logic();
-    public static HashMap<String, String> map = new HashMap<>();
-    private final Reader reader = new Reader();
-    private final Keyboards keyboards = new Keyboards();
+public class Telegram extends TelegramLongPollingBot implements IMessageSender {
+    private final GroupRepository groupRepository;
+    private final Logic logic;
+    private final Keyboards keyboards;
+    private final Reader reader;
+
+    public Telegram(GroupRepository groupRepository, Logic logic, Keyboards keyboards, Reader reader) {
+        this.groupRepository = groupRepository;
+        this.logic = logic;
+        this.keyboards = keyboards;
+        this.reader = reader;
+    }
 
 
     /**
@@ -77,9 +84,7 @@ public class Telegram extends TelegramLongPollingBot {
                     textMessage = inMess.getData();
                 }
 
-                if (!map.containsKey(chatId)) {
-                    map.put(chatId, null);
-                }
+                groupRepository.setGroupNumberIfNotContains(chatId, null);
 
                 SendMessage outMess = new SendMessage();
                 outMess.setChatId(chatId);
@@ -99,6 +104,7 @@ public class Telegram extends TelegramLongPollingBot {
         }
     }
 
+    @Override
     public synchronized void sendMessage(String chatId, String message) throws TelegramApiException {
         SendMessage sendMessage = new SendMessage();
         sendMessage.enableMarkdown(true);
@@ -106,6 +112,4 @@ public class Telegram extends TelegramLongPollingBot {
         sendMessage.setText(message);
         execute(sendMessage);
     }
-
-
 }

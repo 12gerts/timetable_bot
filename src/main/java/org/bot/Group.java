@@ -1,24 +1,20 @@
 package org.bot;
 
-import org.bot.Http.HttpRequest;
 import org.bot.Http.IHttpRequest;
 import org.bot.Parser.IParserJson;
-import org.bot.Parser.ParserJson;
-import org.bot.Telegram.Telegram;
+import org.bot.Repository.GroupRepository;
 
 
-public class Group implements IGroup{
+public class Group implements IGroup {
     private final IHttpRequest request;
     private final IParserJson parserJson;
 
-    public Group(IHttpRequest request, IParserJson parser) {
-        this.parserJson = parser;
-        this.request = request;
-    }
+    private final GroupRepository groupRepository;
 
-    public Group() {
-        this.parserJson = new ParserJson();
-        this.request = new HttpRequest();
+    public Group(IHttpRequest request, IParserJson parser, GroupRepository groupRepository) {
+        this.request = request;
+        this.parserJson = parser;
+        this.groupRepository = groupRepository;
     }
 
     /**
@@ -35,11 +31,11 @@ public class Group implements IGroup{
 
         if (responseValid(response, group)) {
             if (parserJson.notEmpty()) {
-                Telegram.map.replace(chatId, String.valueOf(parserJson.getData()));
-                return Telegram.map.get(chatId);
+                groupRepository.setGroupNumber(chatId, String.valueOf(parserJson.getData()));
+                return groupRepository.getGroupNumber(chatId);
             }
         }
-        Telegram.map.replace(chatId, null);
+        groupRepository.setGroupNumber(chatId, null);
         return null;
     }
 
@@ -56,7 +52,7 @@ public class Group implements IGroup{
 
     @Override
     public String checkGroupChange(String chatId) {
-        if (Telegram.map.get(chatId) == null) {
+        if (groupRepository.getGroupNumber(chatId) == null) {
             return Report.REQUEST_ERROR;
         } else {
             return Report.GROUP_CHANGE;

@@ -1,13 +1,15 @@
 package org.bot;
 
-import org.bot.Entity.Ntf;
+import org.bot.Entity.Notification;
 import org.bot.Http.HttpRequest;
 import org.bot.Http.IHttpRequest;
+import org.bot.Repository.INotificationRepository;
 import org.bot.Notification.UserAnswer;
-import org.bot.Services.NtfServices;
+import org.bot.Parser.ParserJson;
+import org.bot.Services.INotificationService;
+import org.bot.Repository.GroupRepository;
 import org.bot.Telegram.Keyboards.ButtonType;
 import org.bot.Telegram.Keyboards.KeyboardType;
-import org.bot.Telegram.Telegram;
 
 import java.io.IOException;
 import java.text.DateFormat;
@@ -20,13 +22,11 @@ import java.util.Objects;
 import static org.bot.Telegram.Keyboards.ButtonType.*;
 import static org.bot.Telegram.Keyboards.KeyboardType.INLINE;
 import static org.bot.Telegram.Keyboards.KeyboardType.REPLY;
-import static org.bot.Notification.Handler.treeMap;
 
 /**
  * Класс, реализующий базовую логику бота
  */
 public class Logic {
-
     public void setLastMessage(String lastMessage) {
         this.lastMessage = lastMessage;
     }
@@ -40,10 +40,13 @@ public class Logic {
     private final String[] COMMAND_BUTTON_DAYS = {"/day", "/add"};
     private final String[] COMMAND_WITH_GROUP = {"/day", "/add", "/week", "/weeks", "/change"};
     private final IGroup group;
-    private final NtfServices ntf;
+    private final INotificationService notificationService;
     private final DateFormat dateFormat = new SimpleDateFormat("dd.MM.yyyy HH:mm");
     private final IWeek week;
     private final IHttpRequest request;
+    private final INotificationRepository notificationRepository;
+    private final GroupRepository groupRepository;
+
 
     public ButtonType getButtonType() {
         return buttonType;
@@ -54,28 +57,33 @@ public class Logic {
     /**
      * Конструктор для тестирования
      *
-     * @param request MockHttpRequest
-     * @param week    MockWeek
-     * @param group   MockGroup
-     * @param ntf     MockNtf
+     * @param request                MockHttpRequest
+     * @param week                   MockWeek
+     * @param group                  MockGroup
+     * @param notificationService    MockNtf
+     * @param notificationRepository
      */
 
-    public Logic(IHttpRequest request, IWeek week, IGroup group, NtfServices ntf) {
+    public Logic(IHttpRequest request, IWeek week, IGroup group, INotificationService notificationService, INotificationRepository notificationRepository, GroupRepository groupRepository) {
         this.request = request;
         this.week = week;
         this.group = group;
-        this.ntf = ntf;
+        this.notificationService = notificationService;
+        this.notificationRepository = notificationRepository;
+        this.groupRepository = groupRepository;
     }
 
     /**
      * Конструктор по умолчанию
      */
-    public Logic() {
+    public Logic(GroupRepository groupRepository, INotificationRepository notificationRepository, INotificationService notificationService) {
         this.request = new HttpRequest();
         this.week = new Week();
-        this.group = new Group();
+        this.group = new Group(new HttpRequest(), new ParserJson(), groupRepository);
         this.userAnswer = new UserAnswer();
-        this.ntf = new NtfServices();
+        this.notificationService = notificationService;
+        this.groupRepository = groupRepository;
+        this.notificationRepository = notificationRepository;
     }
 
     /**
@@ -84,7 +92,7 @@ public class Logic {
      * @param textMsg сообщение пользователя
      * @return тип клавиатуры
      */
-    public Enum<KeyboardType> getKeyboardType(String textMsg) {
+    public KeyboardType getKeyboardType(String textMsg) {
         KeyboardType keyboardType;
         if (Objects.equals(textMsg, Report.CHOOSE_DAY)) {
             keyboardType = INLINE;
@@ -159,20 +167,20 @@ public class Logic {
             }
         } else if (Objects.equals(lastMessage, Report.ASK_MESSAGE)) {
             userAnswer.setMessage(textMsg);
-            Ntf notification = ntf.createNotification(
+            Notification notification = Notification.createNotification(
                     userAnswer.getMessage(),
                     Long.valueOf(chatId),
                     userAnswer.getDate(),
                     userAnswer.getSubject()
             );
-            ntf.buildTransaction(notification);
-            treeMap.put(userAnswer.getDate(), notification.getId());
+            notificationService.saveNotification(notification);
+            notificationRepository.put(userAnswer.getDate(), notification.getId());
             response = Report.DONE;
             lastMessage = null;
-        } else if (week.isValid(textMsg) && Telegram.map.get(chatId) != null) {
+        } else if (week.isValid(textMsg) && groupRepository.getGroupNumber(chatId) != null) {
             if (Objects.equals(lastMessage, "/day")) {
                 // подается дата в /day, когда задана группа
-                return getReport(textMsg, Telegram.map.get(chatId));
+                return getReport(textMsg, groupRepository.getGroupNumber(chatId));
             } else if (Objects.equals(lastMessage, "/add")) {
                 // подается дата в /add, когда задана группа
                 return Report.SCHEDULE + textMsg;
@@ -181,18 +189,18 @@ public class Logic {
             //подается группа в /change для смены
             group.convertAndUpdateNumberOfGroup(textMsg, chatId);
             response = group.checkGroupChange(chatId);
-        } else if (Arrays.asList(COMMAND_WEEK).contains(lastMessage) && Telegram.map.get(chatId) == null) {
+        } else if (Arrays.asList(COMMAND_WEEK).contains(lastMessage) && groupRepository.getGroupNumber(chatId) == null) {
             //подается группа в /week(s)
             group.convertAndUpdateNumberOfGroup(textMsg, chatId);
-            if (Telegram.map.get(chatId) == null) {
+            if (groupRepository.getGroupNumber(chatId) == null) {
                 response = Report.REQUEST_ERROR;
             } else {
-                response = getReport(lastMessage, Telegram.map.get(chatId));
+                response = getReport(lastMessage, groupRepository.getGroupNumber(chatId));
             }
-        } else if (Arrays.asList(COMMAND_BUTTON_DAYS).contains(lastMessage) && Telegram.map.get(chatId) == null) {
+        } else if (Arrays.asList(COMMAND_BUTTON_DAYS).contains(lastMessage) && groupRepository.getGroupNumber(chatId) == null) {
             //подается группа в /add, /day
             group.convertAndUpdateNumberOfGroup(textMsg, chatId);
-            if (Telegram.map.get(chatId) == null) {
+            if (groupRepository.getGroupNumber(chatId) == null) {
                 response = Report.REQUEST_ERROR;
             } else {
                 response = Report.CHOOSE_DAY;
@@ -221,7 +229,7 @@ public class Logic {
             response = Report.HELP_REPORT;
         } else if (textMsg.equals("/change")) {
             // обработка /change
-            Telegram.map.replace(chatId, null);
+            groupRepository.setGroupNumber(chatId, null);
             response = Report.AUTHORIZATION_REPORT;
         } else if (textMsg.equals("/call")) {
             Reader reader = new Reader();
@@ -236,12 +244,12 @@ public class Logic {
             } else {
                 response = Report.EVEN;
             }
-        } else if (Arrays.asList(COMMAND_WITH_GROUP).contains(textMsg) && Telegram.map.get(chatId) == null) {
+        } else if (Arrays.asList(COMMAND_WITH_GROUP).contains(textMsg) && groupRepository.getGroupNumber(chatId) == null) {
             // обработка /week(s) /day /add, если нет группы
             response = Report.AUTHORIZATION_REPORT;
         } else if (Arrays.asList(COMMAND_WEEK).contains(textMsg)) {
             // обработка /week(s), если есть группа
-            response = getReport(textMsg, Telegram.map.get(chatId));
+            response = getReport(textMsg, groupRepository.getGroupNumber(chatId));
         } else if (Arrays.asList(COMMAND_BUTTON_DAYS).contains(textMsg)) {
             // обработка /day, /add если есть группа
             response = Report.CHOOSE_DAY;

@@ -3,7 +3,7 @@ package org.bot.Parser;
 import com.google.gson.Gson;
 
 
-public class ParserJson implements IParserJson{
+public class ParserJson implements IParserJson {
     private TemplateJson json;
 
     @Override

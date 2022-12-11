@@ -1,20 +1,35 @@
 import org.bot.*;
-import org.bot.Telegram.Telegram;
+import org.bot.Repository.INotificationRepository;
+import org.bot.Repository.NotificationRepository;
+import org.bot.Services.INotificationService;
+import org.bot.Services.NotificationService;
+import org.bot.Repository.GroupRepository;
+import org.bot.Telegram.Keyboards.ButtonType;
+import org.bot.Telegram.Keyboards.KeyboardType;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
+import java.text.DateFormat;
+import java.util.Date;
+import java.util.List;
 import java.util.Objects;
 
+import static org.bot.Telegram.Keyboards.ButtonType.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class LogicTest {
-
+    private static final Reader reader = new Reader();
+    private final GroupRepository groupRepository = new GroupRepository();
+    private final INotificationService notificationService = new NotificationService();
+    private final INotificationRepository notificationRepository = new NotificationRepository(notificationService);
     private final Logic logic = new Logic(
             new GroupTest.MockHttpRequest(),
             new MockWeek(),
-            new MockGroup()
+            new MockGroup(groupRepository),
+            notificationService,
+            notificationRepository,
+            groupRepository
     );
-    private static final Reader reader = new Reader();
     private static final String today;
 
     static {
@@ -78,7 +93,7 @@ public class LogicTest {
 
     @Test
     void getCorrectChange() {
-        Telegram.map.put("1", "123");
+        groupRepository.setGroupNumber("1", "123");
         logic.setLastMessage("/change");
 
         String actual = logic.parseMessage("мен-210204", "1");
@@ -88,7 +103,7 @@ public class LogicTest {
 
     @Test
     void getIncorrectChange() {
-        Telegram.map.put("2", "123");
+        groupRepository.setGroupNumber("2", "123");
         logic.setLastMessage("/change");
 
         String actual = logic.parseMessage("мен-000000", "2");
@@ -98,28 +113,25 @@ public class LogicTest {
 
     @Test
     void getDoubleCommand() {
-        Telegram.map.put("1", null);
-        logic.setLastMessage("/today");
-
-        String actual = logic.parseMessage("/today", "1");
+        groupRepository.setGroupNumber("1", null);
+        logic.setLastMessage("/day");
+        String actual = logic.parseMessage("/day", "1");
         String expected = Report.AUTHORIZATION_REPORT;
         assertEquals(expected, actual);
     }
 
     @Test
     void addGroupAndGetScheduleWhenCorrect() {
-        Telegram.map.put("1", null);
-        logic.setLastMessage("/today");
-
+        groupRepository.setGroupNumber("1", null);
+        logic.setLastMessage("/day");
         String actual = logic.parseMessage("мен-210204", "1");
-        assertEquals(today, actual);
+        assertEquals("Выберите день", actual);
     }
 
     @Test
     void addGroupAndGetScheduleWhenIncorrect() {
-        Telegram.map.put("1", null);
-        logic.setLastMessage("/today");
-
+        groupRepository.setGroupNumber("1", null);
+        logic.setLastMessage("/day");
         String actual = logic.parseMessage("мен-000000", "1");
         String expected = Report.REQUEST_ERROR;
         assertEquals(expected, actual);
@@ -127,49 +139,39 @@ public class LogicTest {
 
     @Test
     void getReportDefault() {
-        String actual = logic.getReport("/non-exist", null);
+        String actual = logic.parseMessage("default", null);
         String expected = Report.DEFAULT_REPORT;
         assertEquals(expected, actual);
     }
 
     @Test
-    void getAuthorizationReportWhenTodayAndNull() {
-        String actual = logic.getReport("/today", null);
-        String expected = Report.AUTHORIZATION_REPORT;
-        assertEquals(expected, actual);
-    }
-
-    @Test
-    void getAuthorizationReportWhenTomorrowAndNull() {
-        String actual = logic.getReport("/tomorrow", null);
-        String expected = Report.AUTHORIZATION_REPORT;
-        assertEquals(expected, actual);
+    void getAuthorizationReportWhenDayAndNull() {
+        groupRepository.setGroupNumber("1", "123");
+        String actual = logic.parseMessage("/day", "1");
+        assertEquals("Выберите день", actual);
     }
 
     @Test
     void getAuthorizationReportWhenWeekAndNull() {
-        String actual = logic.getReport("/week", null);
+        groupRepository.setGroupNumber("1", null);
+        String actual = logic.parseMessage("/week", "1");
         String expected = Report.AUTHORIZATION_REPORT;
         assertEquals(expected, actual);
     }
 
     @Test
     void getAuthorizationReportWhenWeeksAndNull() {
-        String actual = logic.getReport("/weeks", null);
+        groupRepository.setGroupNumber("1", null);
+        String actual = logic.parseMessage("/weeks", "1");
         String expected = Report.AUTHORIZATION_REPORT;
         assertEquals(expected, actual);
     }
 
     @Test
-    void getAuthorizationReportWhenTodayAndNotNull() {
-        String actual = logic.getReport("/today", "1");
-        assertEquals(today, actual);
-    }
-
-    @Test
-    void getAuthorizationReportWhenTomorrowAndNotNull() {
-        String actual = logic.getReport("/tomorrow", "1");
-        assertEquals(tomorrow, actual);
+    void getAuthorizationReportWhenDayAndNotNull() {
+        groupRepository.setGroupNumber("1", "1");
+        String actual = logic.parseMessage("/day", "1");
+        assertEquals("Выберите день", actual);
     }
 
     @Test
@@ -184,16 +186,43 @@ public class LogicTest {
         assertEquals(weeks, actual);
     }
 
+    @Test
+    void getKeyboardTypeWithChoseDay() {
+        KeyboardType actual = logic.getKeyboardType("Выберите день");
+        ButtonType expected = DAYS;
+        KeyboardType expected2 = KeyboardType.INLINE;
+        assertEquals(expected, logic.getButtonType());
+        assertEquals(expected2, actual);
+    }
+
+    @Test
+    void getKeyboardTypeWithSchedule() {
+        KeyboardType actual = logic.getKeyboardType("Расписание на ");
+        ButtonType expected = SCHEDULE;
+        KeyboardType expected2 = KeyboardType.INLINE;
+        assertEquals(expected, logic.getButtonType());
+        assertEquals(expected2, actual);
+    }
+
+    @Test
+    void getKeyboardTypeWithElse() {
+        KeyboardType actual = logic.getKeyboardType("Стандартный текст");
+        ButtonType expected = NONE;
+        KeyboardType expected2 = KeyboardType.REPLY;
+        assertEquals(expected2, actual);
+        assertEquals(expected, logic.getButtonType());
+    }
+
     public static class MockWeek implements IWeek {
 
         @Override
-        public String today(String calendar) {
-            return today;
+        public List<String> today(String calendar, Date date) {
+            return null;
         }
 
         @Override
-        public String tomorrow(String calendar) {
-            return tomorrow;
+        public String day(String calendar, Date date) {
+            return null;
         }
 
         @Override
@@ -205,14 +234,41 @@ public class LogicTest {
             }
             return null;
         }
+
+        @Override
+        public boolean isValid(String dateStr) {
+            return false;
+        }
+
+        @Override
+        public Date parseDate(String report) {
+            return null;
+        }
+
+        @Override
+        public Date parseDate(String report, DateFormat stf) {
+            return null;
+        }
+
+        @Override
+        public boolean evenness() {
+            return false;
+        }
     }
+
     public static class MockGroup implements IGroup {
+        GroupRepository groupRepository;
+
+        public MockGroup(GroupRepository groupRepository) {
+            this.groupRepository = groupRepository;
+        }
+
         @Override
         public String convertAndUpdateNumberOfGroup(String group, String chatId) {
             if (Objects.equals(group, "мен-210204")) {
-                Telegram.map.replace(chatId, "54627");
+                groupRepository.setGroupNumber(chatId, "54627");
             } else {
-                Telegram.map.replace(chatId, null);
+                groupRepository.setGroupNumber(chatId, null);
             }
             return null;
         }

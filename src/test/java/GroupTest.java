@@ -2,7 +2,7 @@ import org.bot.Group;
 import org.bot.Http.IHttpRequest;
 import org.bot.Parser.IParserJson;
 import org.bot.Report;
-import org.bot.Telegram.Telegram;
+import org.bot.Repository.GroupRepository;
 import org.junit.jupiter.api.Test;
 
 import java.util.Objects;
@@ -11,11 +11,11 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
 public class GroupTest {
-
+    GroupRepository groupRepository = new GroupRepository();
     @Test
     public void getConvertNumberOfGroupForExist() {
-        Telegram.map.put("1", null);
-        Group group = new Group(new MockHttpRequest(), new MockParserJson());
+        groupRepository.setGroupNumber("1", null);
+        Group group = new Group(new MockHttpRequest(), new MockParserJson(), groupRepository);
         String actual = group.convertAndUpdateNumberOfGroup("мен-210204", "1");
         String expected = "54627";
         assertEquals(expected, actual);
@@ -23,16 +23,16 @@ public class GroupTest {
 
     @Test
     public void getConvertNumberOfGroupForNonExist() {
-        Telegram.map.put("1", null);
-        Group group = new Group(new MockHttpRequest(), new MockParserJson());
+        groupRepository.setGroupNumber("1", null);
+        Group group = new Group(new MockHttpRequest(), new MockParserJson(), groupRepository);
         String actual = group.convertAndUpdateNumberOfGroup("мен-00000", "1");
         assertNull(actual);
     }
 
     @Test
     public void checkGroupChangeIfNull() {
-        Telegram.map.put("1", null);
-        Group group = new Group(new MockHttpRequest(), new MockParserJson());
+        groupRepository.setGroupNumber("1", null);
+        Group group = new Group(new MockHttpRequest(), new MockParserJson(), groupRepository);
         String actual = group.checkGroupChange("1");
         String expected = Report.REQUEST_ERROR;
         assertEquals(expected, actual);
@@ -40,8 +40,8 @@ public class GroupTest {
 
     @Test
     public void checkGroupChangeIfNotNull() {
-        Telegram.map.put("1", "123");
-        Group group = new Group(new MockHttpRequest(), new MockParserJson());
+        groupRepository.setGroupNumber("1", "123");
+        Group group = new Group(new MockHttpRequest(), new MockParserJson(), groupRepository);
         String actual = group.checkGroupChange("1");
         String expected = Report.GROUP_CHANGE;
         assertEquals(expected, actual);

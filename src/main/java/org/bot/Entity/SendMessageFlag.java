@@ -10,17 +10,17 @@ import org.hibernate.annotations.Parameter;
 @Getter
 @Setter
 @Table(name = "sendmessage")
-public class SendMessage {
+public class SendMessageFlag {
     @Id
     @Column(name = "id", nullable = false)
     @GeneratedValue(generator = "gen")
-    @GenericGenerator(name = "gen", strategy = "foreign", parameters = {@Parameter(name = "property", value = "ntf")})
+    @GenericGenerator(name = "gen", strategy = "foreign", parameters = {@Parameter(name = "property", value = "notification")})
     private Long id;
 
     private boolean isSend;
     @OneToOne
     @PrimaryKeyJoinColumn
-    private Ntf ntf;
+    private Notification notification;
 
     @Override
     public String toString() {

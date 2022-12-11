@@ -40,6 +40,7 @@ public class Report {
     public static final String DONE = "Уведомление успешно добавлено";
     public static final String ASK_DATE = "Введите дату и время в формате DD.MM.YYYY HH:MM";
     public static final String RETRY_DATE = "Неверный формат ввода. Повторите попытку";
+
     public static final String BEFORE_DATE = "Введенная дата уже прошла. Повторите попытку";
 }
 

@@ -18,10 +18,12 @@ import java.util.List;
 public class Schedule {
     private final DateFormat dfEqual;
     private final DateFormat dfPrint;
+
     public Schedule() {
         this.dfEqual = new SimpleDateFormat("dd/MM/yyyy");
         this.dfPrint = new SimpleDateFormat("HH:mm");
     }
+
     /**
      * Метод, парсящий ICalendar и возвращающий все занятия за заданный день
      *
@@ -42,7 +44,6 @@ public class Schedule {
                     }
 
                     String dateStartStr = dfPrint.format(dateStart.getValue());
-
                     Summary summary = event.getSummary();
                     String summaryStr = summary.getValue();
 
@@ -56,7 +57,6 @@ public class Schedule {
     }
 
     public List<String> parseCalendar(String calendar, Date date, List<String> list) {
-        List<String> slist = list;
         try (ICalReader reader = new ICalReader(calendar)) {
             ICalendar icalendar;
             while ((icalendar = reader.readNext()) != null) {
@@ -70,16 +70,16 @@ public class Schedule {
                     Summary summary = event.getSummary();
                     String summaryStr = summary.getValue();
                     try {
-                        slist.add(lessonNumber(dateStartStr) + ": " + summaryStr.substring(0, 24));
+                        list.add(lessonNumber(dateStartStr) + ": " + summaryStr.substring(0, 24));
                     } catch (StringIndexOutOfBoundsException e) {
-                        slist.add(lessonNumber(dateStartStr) + ": " + summaryStr);
+                        list.add(lessonNumber(dateStartStr) + ": " + summaryStr);
                     }
                 }
             }
         } catch (IOException error) {
             return null;
         }
-        return slist;
+        return list;
     }
 
     public String lessonNumber(String time) {

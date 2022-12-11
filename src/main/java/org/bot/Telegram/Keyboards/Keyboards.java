@@ -11,7 +11,12 @@ import java.util.List;
 import static org.bot.Telegram.Keyboards.ButtonType.SCHEDULE;
 
 public class Keyboards {
-    private final Button button = new Button();
+    private final Button button;
+
+    public Keyboards(Button button) {
+        this.button = button;
+    }
+
     public InlineKeyboardMarkup inlineKeyBoard(Enum<ButtonType> type, String chatId, String date) {
         List<List<InlineKeyboardButton>> rowList;
         if (type == SCHEDULE) {
